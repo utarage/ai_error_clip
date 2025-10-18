@@ -7,12 +7,11 @@ button that copies the information for pasting into an AI assistant.
 
 ## Installation
 
-Add the gem to your Rails application's `Gemfile`. When developing locally you
-can use a `path:` reference:
+Add the gem to your Rails application's `Gemfile`:
 
 ```ruby
 group :development do
-  gem "ai_error_clip", path: "vendor/ai_error_clip"
+  gem "ai_error_clip"
 end
 ```
 
