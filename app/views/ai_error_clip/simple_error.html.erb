@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #f5f5f5;
+      padding: 12px;
+      margin: 0;
+    }
+    .error-container {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 16px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .error-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .error-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .copy-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    h1 {
+      color: #d00;
+      font-size: 24px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      text-transform: uppercase;
+      margin: 0 0 12px 0;
+    }
+    .error-grid {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 8px 12px;
+    }
+    .error-label {
+      font-weight: bold;
+      color: #666;
+      font-size: 12px;
+      padding-top: 2px;
+    }
+    .error-content {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      padding: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+      overflow: hidden;
+    }
+    .error-content--scroll {
+      max-height: 200px;
+      overflow: auto;
+    }
+    .copy-button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .copy-button:hover {
+      background: #0052a3;
+    }
+    .copy-button:active {
+      background: #004080;
+    }
+    .copied-message {
+      display: none;
+      color: #080;
+      font-size: 12px;
+    }
+    .copy-hint {
+      color: #666;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+  </style>
+  <script>
+    function copyErrorContent() {
+      const errorPath = document.getElementById('error-path').innerText;
+      const errorClass = document.getElementById('error-class').innerText;
+      const errorMessage = document.getElementById('error-message').innerText;
+      const errorBacktrace = document.getElementById('error-backtrace').innerText;
+      const errorBodyElement = document.getElementById('error-body');
+      const errorBody = errorBodyElement ? errorBodyElement.innerText : null;
+      const errorContextElement = document.getElementById('error-context');
+      const errorContext = errorContextElement ? errorContextElement.innerText : null;
+      const contextSection = errorContext ? `\n\nContext:\n${errorContext}` : '';
+      const bodySection = errorBody ? `\n\nPayload / Parameters:\n${errorBody}` : '';
+      const fullContent = `Request Path:\n${errorPath}\n\nError Class:\n${errorClass}\n\nError Message:\n${errorMessage}${contextSection}${bodySection}\n\nBacktrace:\n${errorBacktrace}`;
+
+      navigator.clipboard.writeText(fullContent).then(function() {
+        const message = document.getElementById('copied-message');
+        message.style.display = 'inline';
+        setTimeout(function() {
+          message.style.display = 'none';
+        }, 2000);
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-header">
+      <h1>Error Details</h1>
+      <div class="error-actions">
+        <div class="copy-status">
+          <span class="copied-message" id="copied-message">✓ Copied</span>
+          <button class="copy-button" onclick="copyErrorContent()">Copy details for AI</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-grid">
+      <div class="error-label">Request Path</div>
+      <div class="error-content" id="error-path"><%= @ai_error_clip_error[:method] %> <%= @ai_error_clip_error[:path] %></div>
+
+      <div class="error-label">Error Class</div>
+      <div class="error-content" id="error-class"><%= @ai_error_clip_error[:class] %></div>
+
+      <div class="error-label">Error Message</div>
+      <div class="error-content" id="error-message"><%= @ai_error_clip_error[:message] %></div>
+
+      <% if @ai_error_clip_error[:context].present? %>
+        <div class="error-label">Context</div>
+        <div class="error-content error-content--scroll" id="error-context"><% @ai_error_clip_error[:context].each do |key, value| %><%= "#{key}: #{value}" %>
+<% end %></div>
+      <% end %>
+
+      <% if @ai_error_clip_error[:body].present? %>
+        <div class="error-label">Payload / Parameters</div>
+        <div class="error-content error-content--scroll" id="error-body"><%= h @ai_error_clip_error[:body] %></div>
+      <% end %>
+
+      <div class="error-label">Backtrace</div>
+      <div class="error-content error-content--scroll" id="error-backtrace"><% @ai_error_clip_error[:backtrace].each do |line| %><%= line %>
+<% end %></div>
+    </div>
+
+  </div>
+</body>
+</html>
